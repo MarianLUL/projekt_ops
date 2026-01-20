@@ -17,6 +17,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Convert owner to lowercase
+        id: vars
+        run: echo "owner_lc=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -29,4 +33,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')/my-image:latest
+          tags: ghcr.io/${{ steps.vars.outputs.owner_lc }}/my-image:latest
