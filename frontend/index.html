@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Počasí - Docker Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 40px; background:#f7f7f7 }
+    .card { background:white; padding:20px; border-radius:8px; max-width:600px; margin:auto }
+    input { padding:8px; width:70% }
+    button { padding:8px 12px }
+    pre { background:#eee; padding:10px }
+    .weather-card { margin-top:18px; padding:16px; border-radius:10px; background:linear-gradient(180deg,#fff,#f3f6ff); box-shadow:0 6px 20px rgba(0,0,0,0.08)}
+    .city { font-size:20px; font-weight:700; color:#333; display:flex; align-items:center; gap:10px }
+    .icon { font-size:34px }
+    .desc { font-size:14px; color:#555; margin-top:6px }
+    .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:12px }
+    .item { background:#fff; padding:10px; border-radius:8px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.04) }
+    .label { font-size:12px; color:#888; text-transform:uppercase }
+    .value { font-size:18px; font-weight:700; color:#1e3a8a }
+    .error { background:#fff0f0; color:#9b1c1c; padding:12px; border-radius:8px; margin-top:12px }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Počasí - Docker Compose demo</h2>
+    <p>Zadejte město (např. Praha) a stiskněte Hledat.</p>
+    <div>
+      <input id="city" placeholder="město" />
+      <button onclick="search()">Hledat</button>
+    </div>
+    <div id="result" style="margin-top:16px"></div>
+  </div>
+
+  <script>
+    // Try multiple endpoints to support Windows host and Docker containers.
+    const apiCandidates = [
+      // If frontend is proxied to backend, relative path works
+      (city) => `/weather/${encodeURIComponent(city)}`,
+      // Docker Desktop containers can reach host via host.docker.internal
+      (city) => `http://host.docker.internal:8000/weather/${encodeURIComponent(city)}`,
+      // Localhost on host machine (when running backend locally)
+      (city) => `http://localhost:8000/weather/${encodeURIComponent(city)}`,
+    ];
+
+    async function tryFetch(url){
+      try{
+        const res = await fetch(url, { mode: 'cors' });
+        if(!res.ok) return { ok: false, status: res.status, text: await res.text() };
+        const json = await res.json();
+        return { ok: true, data: json };
+      }catch(e){
+        return { ok: false, error: e };
+      }
+    }
+
+    async function search(){
+      const city = document.getElementById('city').value.trim();
+      if(!city) return alert('Zadejte město');
+      const resultEl = document.getElementById('result');
+      resultEl.innerHTML = '<div class="weather-card">Načítám...</div>';
+
+      for(const candidate of apiCandidates){
+        const url = candidate(city);
+        const resp = await tryFetch(url);
+        if(resp.ok){
+          renderWeather(resp.data, resultEl);
+          return;
+        }
+      }
+
+      resultEl.innerHTML = '<div class="error">Nelze se připojit k API. Zkontrolujte, že běží backend na portu 8000 nebo Docker Desktop je spuštěný.</div>';
+    }
+
+    function renderWeather(data, container){
+      const c = data || {};
+      const city = c.city || '—';
+      const desc = c.description || '—';
+      const temp = (c.temperature !== undefined && c.temperature !== null) ? Math.round(c.temperature) + '°C' : '—';
+      const feels = (c.feels_like !== undefined && c.feels_like !== null) ? Math.round(c.feels_like) + '°C' : '—';
+      const humidity = c.humidity !== undefined ? c.humidity + '%' : '—';
+      const pressure = c.pressure !== undefined ? c.pressure + ' hPa' : '—';
+      const wind = c.wind_speed !== undefined ? c.wind_speed + ' m/s' : '—';
+
+      const icon = iconForDescription(desc);
+      container.innerHTML = `
+        <div class="weather-card">
+          <div class="city"><span class="icon">${icon}</span>${escapeHtml(city)}</div>
+          <div class="desc">${escapeHtml(desc)}</div>
+          <div class="grid">
+            <div class="item"><div class="label">Teplota</div><div class="value">${escapeHtml(temp)}</div></div>
+            <div class="item"><div class="label">Pocitová</div><div class="value">${escapeHtml(feels)}</div></div>
+            <div class="item"><div class="label">Vlhkost</div><div class="value">${escapeHtml(humidity)}</div></div>
+            <div class="item"><div class="label">Tlak</div><div class="value">${escapeHtml(pressure)}</div></div>
+            <div class="item"><div class="label">Vítr</div><div class="value">${escapeHtml(wind)}</div></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function escapeHtml(str){
+      if(str === null || str === undefined) return '';
+      return String(str).replace(/[&<>"']/g, function(s){
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[s];
+      });
+    }
+
+    function iconForDescription(desc){
+      if(!desc) return '❓';
+      const d = desc.toLowerCase();
+      if(d.includes('clear') || d.includes('sun')) return '☀️';
+      if(d.includes('partly') || d.includes('few') || d.includes('mostly')) return '🌤️';
+      if(d.includes('cloud')) return '☁️';
+      if(d.includes('rain') || d.includes('drizzle')) return '🌧️';
+      if(d.includes('snow')) return '❄️';
+      if(d.includes('thunder') || d.includes('storm')) return '⛈️';
+      if(d.includes('fog') || d.includes('mist') || d.includes('haze')) return '🌫️';
+      return '🌡️';
+    }
+  </script>
+</body>
+</html>
