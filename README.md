@@ -4,11 +4,11 @@ Krátký demo projekt: jednoduché backend API (FastAPI) a frontend (statický H
 
 Rychlý start:
 
-1) Zkopírujte `.env.example` do `.env` a vložte svůj OpenWeatherMap API klíč.
+1) Zkopírujte `.env.example` do `.env` a vložte svůj VISUALCROSSING API klíč.
 
 ```powershell
 copy .env.example .env
-# upravte .env a zadejte OPENWEATHER_API_KEY
+# upravte .env a zadejte VISUALCROSSING_API_KEY
 ```
 
 2) Spuštění (Docker) - Windows 11 doporučeno
@@ -35,3 +35,4 @@ Spuštění bez Dockeru (Windows)
 Poznámky:
 - Pokud frontend poběží v Docker kontejneru, pro připojení k backendu v hostu používáme `host.docker.internal`.
 - `frontend/index.html` zkusí postupně: relativní `/weather/...`, `host.docker.internal` a `localhost`, takže by měl fungovat lokálně i v Docker Compose na Windows.
+
