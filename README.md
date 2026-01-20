@@ -35,7 +35,7 @@ Projekt používá **Visual Crossing API** pro data o počasí.
 2. Zaregistruj se (free plan má 1000 requestů/den)
 3. Zkopíruj si svůj API klíč
 
-Potom v `backend/` složce vytvoř soubor `.env`:
+Potom v `backend/` složce vytvoř soubor `.env.example`:
 
 ```powershell
 # V PowerShell, z kořenu projektu
@@ -216,3 +216,4 @@ Pokud něco nefunguje, zkontroluj:
 4. ✅ Otvíráš správnou URL v prohlížeči?
 
 Hodně štěstí! 🚀
+
