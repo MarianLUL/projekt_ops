@@ -86,9 +86,16 @@ cd backend
 
 # 2. Vytvoř virtuální prostředí (pomocí py launcher)
 py -3 -m venv venv
+```
+nebo 
+```
 
+```
+```
 # 3. Aktivuj venv (PowerShell)
 .\venv\Scripts\Activate.ps1
+# nebo pro linux
+source venv/bin/activate
 
 # Pokud ti to nedovolí v PowerShell, zkus Command Prompt:
 # .\venv\Scripts\activate.bat
@@ -216,4 +223,5 @@ Pokud něco nefunguje, zkontroluj:
 4. ✅ Otvíráš správnou URL v prohlížeči?
 
 Hodně štěstí! 🚀
+
 
