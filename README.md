@@ -86,10 +86,8 @@ cd backend
 
 # 2. Vytvoř virtuální prostředí (pomocí py launcher)
 py -3 -m venv venv
-```
-nebo 
-```
-
+# nebo
+python -m venv venv
 ```
 ```
 # 3. Aktivuj venv (PowerShell)
@@ -223,5 +221,6 @@ Pokud něco nefunguje, zkontroluj:
 4. ✅ Otvíráš správnou URL v prohlížeči?
 
 Hodně štěstí! 🚀
+
 
 
